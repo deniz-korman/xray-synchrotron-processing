@@ -1,12 +1,18 @@
-# Processing pipeline used to process the synchrotron x-ray images of jumping spiders.
+# Synchrotron x-ray image processing (for jumping spider eyes)
 
-For more information on the original codebase with expanded functionality, with tools to facilitate ML-based tracking, and QA-tools for tracking motion and proportionality of tracks, visit https://github.com/jacksonmichaels/image-and-path-processing-toolkit
+For more information on the original codebase, with tools to facilitate ML-based tracking, and QA-tools for tracking motion and proportionality of tracks, visit https://github.com/jacksonmichaels/image-and-path-processing-toolkit
 
 ## Config Files
 
-Config files specify how the pipeline functions, what input is used, and all other important tunable features of the process. Once this is done you can process all of the input images with a single call such as: `python .\video_process.py -c .\configs\sample_Salticid_TBF.yaml -r` It is important you include -r for recursive otherwise it will not search subfolders for images. Most parameters can be specified both in the config file, as well as through command line arguments. If a value is defined in both the config file and command line arguments it defaults to command line arguements. This is useful if you have a config file whos results you are happy with but would like to try on a different image set without changing the file. In both files the pipeline is customized but before the pipeline is run all images / videos / tracking results are read into memory. Then after the pipeline is run a video will be created based on the output name, you do not need to explicitly add that as a stage.
+Config files specify how the pipeline functions, and what images to process.
 
-The processing pipelines described in our paper can be achieved with the following config files
+Once a config file is established, you can process all specified images with a single call such as:
+
+`python .\video_process.py -c .\configs\sample_salticid_tbf.yaml -r`
+
+*It is important you include -r for recursive otherwise it will not search subfolders for images.*
+
+The processing pipelines described in our paper can be achieved with the following config files. They capture 'static' and 'dynamic' features respectively
 1. **sample_salticid_stills.yaml**
    - The x-ray images specified in the ```image_folder``` are imported, and the x-ray background noise footage specified in ```flat_folder``` is filtered out.
    - The footage in this format is returned in mp4 format, as well as a png still at every ```num_images``` (500) frames highlighting external structures.
@@ -15,7 +21,7 @@ The processing pipelines described in our paper can be achieved with the followi
    - The x-ray images specified in the ```image_folder``` are imported, and the x-ray background noise footage specified in ```flat_folder``` is filtered out.
    - All static elements in footage are filtered by dividing each frame by an average of the next 10 frames (1 sec period), highlighting moving elements.
    - The moving elements (internal eye-structures responding to visual stimuli) are further enhanced by applying a temporal bilateral filter in both the spatial and temporal domain.
-   Effective in boosting contrast in contiguous structures with defined edges, which work well for the eye-tubes of jumping spiders.
+        - Effective in boosting contrast in contiguous structures with defined edges, which work well for the eye-tubes of jumping spiders.
 
 #### Example config file
 
@@ -69,6 +75,11 @@ pipeline:
   ]
 
 ```
+
+
+Most parameters can be specified both in the config file, as well as through command line arguments.
+
+If a value is defined in both the config file and command line arguments it defaults to command line arguements. This is useful if you have a config file whos results you are happy with but would like to try on a different image set without changing the file. In both files the pipeline is customized but before the pipeline is run all images / videos / tracking results are read into memory. Then after the pipeline is run a video will be created based on the output name, you do not need to explicitly add that as a stage.
 
 ---
 ## Video Process
