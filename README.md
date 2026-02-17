@@ -222,5 +222,3 @@ If a value is defined in both the config file and command line arguments it defa
 5. **mul(vid, coef)**:
    - Multiplies each frame of the video by a coefficient.
    - Useful for adjusting the intensity or brightness
-  
----
