@@ -1,0 +1,23 @@
+# This is the main processing pipeline to extract stills of static elements.
+# It will filter out the background x-ray noise and produce a still every [num_image] frames
+# File Paths
+image_folder: "/Volumes/LaCie/Spyder_Vision/Habros_Day3_morning/Spider26_Habro15_gap45_gain20_AAAnorest"
+flat_folder: "/Volumes/LaCie/Spyder_Vision/Flats_and_Darks/Flats_gap45_gain20"
+output_name: "stride5_cropped_Spider26_Habro15_gap45_gain20_AAAnorest"
+
+# Video Settings
+vid_start_index: 0
+num_images: 500
+video_stride: 5
+convert_to_gray: False
+indiv_thumbnails: True # Export an mp4 for every num_images as well a still of the first frame of that mp4
+all_batches: true
+crop: [
+  [250,-1],
+  [100,1600]
+]
+
+# Pipeline Stages
+pipeline:
+  [
+  ]

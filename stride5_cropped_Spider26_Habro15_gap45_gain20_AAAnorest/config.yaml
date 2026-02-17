@@ -1,0 +1,21 @@
+all_batches: true
+convert_to_gray: false
+crop:
+- - 250
+  - -1
+- - 100
+  - 1600
+flat_folder: /Volumes/LaCie/Spyder_Vision/Flats_and_Darks/Flats_gap45_gain20
+image_folder: /Volumes/LaCie/Spyder_Vision/Habros_Day3_morning/Spider26_Habro15_gap45_gain20_AAAnorest
+num_images: 500
+output_name: redo_noFPScap_stride5_cropped_Spider26_Habro15_gap45_gain20_AAAnorest
+pipeline:
+- kwargs: {}
+  name: mean_divide_video
+  params:
+  - 10
+- kwargs: {}
+  name: temporal_bilateral_filter
+  params: []
+vid_start_index: 0
+video_stride: 5

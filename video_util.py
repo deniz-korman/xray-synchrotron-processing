@@ -9,12 +9,14 @@ from skimage.restoration import denoise_wavelet
 from skimage.color import label2rgb
 from skimage.feature import hog
 from scipy.fftpack import fft2, ifft2
+from moviepy.editor import ImageSequenceClip
 import os
 import cv2 as cv2
 from scipy import ndimage
 from PIL import Image, ImageFilter, ImageEnhance
 from tqdm import tqdm
 import bm3d
+import ffmpeg
 import re  # Regular expression library
 
 def pad_ndarray(arr):
@@ -123,14 +125,6 @@ def show(img, threshold=None):
         plt.imshow(img, cmap="gray", vmin=threshold[0], vmax=threshold[1])
     else:
         plt.imshow(img, cmap="gray")
-
-def summarize(vid):
-    print("===")
-    print("MEAN: ", vid.mean())
-    print("STD: ", vid.std())
-    print(f"RANGE: {vid.min()} - {vid.max()}")
-    print("===")
-    return vid
     
 # normalize a single frame to 0-1
 def frame_norm(vid):
@@ -156,13 +150,38 @@ def std_normalize(vid, stds=1):
 # normalize entire video to 0-1 with the option to scale after normalization
 def normalize(vid, max_val=1):
     vid = (vid-np.min(vid))/(np.max(vid) - np.min(vid))
+    normalized_vid = vid * max_val
     return vid * max_val
 
-def adv_normalize(vid, percentile=5):
+def adv_normalize(vid, percentile=5,max_val=1):
     high = np.percentile(vid, 100 - percentile)
     low = np.percentile(vid, percentile)
     vid  -= low
     vid /= (high - low)
+    return vid * max_val
+
+def adv_autonormalize(vid, percentile=20,max_val=255,mean_val=170):
+    high = np.percentile(vid, 100 - percentile)
+    low = np.percentile(vid, percentile)
+    vid  -= low
+    vid /= (high - low)
+    vid = vid * max_val
+    vid_mean = vid.mean()
+    print('Mean after max_val normalization was: f{vid_mean}')
+    print(f'Scaling by {(mean_val/vid_mean)}')
+    return vid * (mean_val/vid_mean)
+
+def summarize(vid):
+    print("MEAN: ", vid.mean())
+    print("MEDIAN: ", np.median(vid))
+    print("STD: ", vid.std())
+    print(f"RANGE: {vid.min()} - {vid.max()}")
+    perc_high = np.percentile(vid, 100 - 5)
+    perc_low = np.percentile(vid, 5)
+    print(f"95% RANGE: {perc_low} - {perc_high}")
+    perc_higher = np.percentile(vid, 100 - 2)
+    perc_lower = np.percentile(vid, 2)
+    print(f"98% RANGE: {perc_lower} - {perc_higher}")
     return vid
 
 # multiply a vidoe by a value
@@ -174,8 +193,9 @@ def exp(vid, factor):
     return vid ** factor
 
 # write a video to disk under a given folder
-def write_video(vid, name, folder="videos"):
+def write_video(vid, name, fps, folder="videos",conf=None):
     full_path = os.path.join(folder, name)
+
     skvideo.io.vwrite(full_path, vid)
 
 # this method takes single from functions and applies them to all frames in a video
@@ -185,11 +205,12 @@ def process_video(vid, func, *args, **kwargs):
     for i in tqdm(range(vid.shape[0])):
         to_add =  np.expand_dims(func(vid[i],*args, **kwargs), axis=0)
         ret_vid[i] = to_add
-        # ret_vid = np.append(ret_vid, to_add, axis=0)
+
+
     return ret_vid
 
 # BM3D method, often used as a last stage
-def block_match(img, sigma_psd=30/255, stage_arg=bm3d.BM3DStages.HARD_THRESHOLDING):
+def block_match(img, sigma_psd=30/255, stage_arg=bm3d.BM3DStages.HARD_THRESHOLDING): # bm3d.BM3DStages.ALL_STAGES || bm3d.BM3DStages.HARD_THRESHOLDING
     ret_img = bm3d.bm3d(img, sigma_psd=sigma_psd, stage_arg=stage_arg)
     return ret_img
 

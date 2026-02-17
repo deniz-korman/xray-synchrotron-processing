@@ -41,40 +41,72 @@ def run_pipeline(pipeline, video):
             vid = func(vid, *stage["params"], **stage["kwargs"])
     return vid
 
-def write_vid(vids, name, conf,individualized_thumbnail=False):
-    name = name.replace(" ", "")
-    print("Writing video to: ", name)
+# method to write videos to disk, it can handle reusing names by adding numbers to the names
+def write_vid(vids, name, conf,write_thumbnail=True):
+    if write_thumbnail:
+        name = name.replace(" ", "")
+        print("Writing video to: ", name)
 
-    os.makedirs(name, exist_ok = True)
-    files = os.listdir(name)
+        os.makedirs(name, exist_ok = True)
+        files = os.listdir(name)
 
-    vid_name = "vid_0.mp4"
-    # if our name is taken change the integer until it isnt
-    if vid_name in files:
-        i = 0
-        vid_name = "vid_" + str(i) + ".mp4"
-        while vid_name in files:
-            i += 1
-            vid_name = "vid_" + str(i) + ".mp4"
+        thumbnail_name = "frame_0.png"
+        # if our name is taken change the integer until it isnt
+        if thumbnail_name in files:
+            i = 0
+            thumbnail_name = "frame_" + str(i*conf["num_images"]) + ".png"
+            while thumbnail_name in files:
+                i += 1
+                thumbnail_name = "frame_" + str(i*conf["num_images"]) + ".png"
 
-    save_folder = name
-    fps = 50/conf["video_stride"]
-    vids = np.array(vids)
-    for vid in vids:
-        vid = video_util.pad_ndarray(vid)
-        video_util.write_video(vid, vid_name, fps, save_folder,conf)
+        save_folder = name
+        for vid in vids:
+            vid = video_util.pad_ndarray(vid)
 
-    if individualized_thumbnail: # Export the starting frame of each sub-video if using individualized_thumbnail 
-        thumbnail_name = vid_name.replace('vid_', 'thumbnail_')
-        thumbnail_name = thumbnail_name.replace('mp4', 'png')
+        # fps = 50/conf["video_stride"]
+        # vids = np.array(vids)
+        # for vid in vids:
+        #     vid = video_util.pad_ndarray(vid)
+        #     video_util.write_video(vid, vid_name, fps, save_folder,conf)
+        yaml_file = open(os.path.join(save_folder, "thumbnail_config.yaml"), 'w')
+        yaml.dump(conf, yaml_file)
+
+        # np.savetxt('thumbnail.txt',vid[len(vid)//2])
+        # print('Typing for thumbnail image')
+        # print(vid.dtype)
+        # print(type(vid.dtype))
         video_util.plt.imsave(os.path.join(save_folder, thumbnail_name), vid[0], cmap='gray')
-        config_name = 'thumbnail_config.yaml'
     else:
-        video_util.plt.imsave(os.path.join(save_folder, "thumbnail.png"), vid[len(vid)//2], cmap='gray')
-        config_name = 'config.yaml'
+        name = name.replace(" ", "")
+        print("Writing video to: ", name)
 
-    yaml_file = open(os.path.join(save_folder, config_name), 'w')
-    yaml.dump(conf, yaml_file)
+        os.makedirs(name, exist_ok = True)
+        files = os.listdir(name)
+
+        vid_name = "vid_0.mp4"
+        # if our name is taken change the integer until it isnt
+        if vid_name in files:
+            i = 0
+            vid_name = "vid_" + str(i) + ".mp4"
+            while vid_name in files:
+                i += 1
+                vid_name = "vid_" + str(i) + ".mp4"
+
+        save_folder = name
+        fps = 50/conf["video_stride"]
+        vids = np.array(vids)
+        for vid in vids:
+            vid = video_util.pad_ndarray(vid)
+            video_util.write_video(vid, vid_name, fps, save_folder,conf)
+        yaml_file = open(os.path.join(save_folder, "config.yaml"), 'w')
+        yaml.dump(conf, yaml_file)
+
+        # np.savetxt('thumbnail.txt',vid[len(vid)//2])
+        # print('Typing for thumbnail image')
+        # print(vid.dtype)
+        # print(type(vid.dtype))
+        video_util.plt.imsave(os.path.join(save_folder, "thumbnail.png"), vid[len(vid)//2])
+
 
 
 # wrapper for running the pipeline that handles data types, reading data, and multiple trials
@@ -94,18 +126,15 @@ def get_and_process_vid(path, start_index, num_images, stride, crop, conf, flat_
     if conf["convert_to_gray"]:
         vid = video_util.process_video(vid, video_util.np.min, axis=2)
 
-    multi_thumbnail = False
-    if :
-        multi_thumbnail = True
-
     # if we have multiple trials then run each separatly
     if "trials" in conf:
         i = 0
         vids = [run_pipeline(trial, vid) for trial in conf["trials"]]
-        write_vid(vids, conf["output_name"], conf, conf["indiv_thumbnails"])
+        write_vid(vids, conf["output_name"], conf)
     else:
         vid = run_pipeline(conf["pipeline"], vid)
-        write_vid([vid], conf["output_name"], conf, conf["indiv_thumbnails"])
+        
+        write_vid([vid], conf["output_name"], conf)
     del vid
 
 # main method to handle config data and specific data index

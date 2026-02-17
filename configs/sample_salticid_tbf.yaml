@@ -1,0 +1,44 @@
+# This is the main processing pipeline used to extract internal morphology details
+# It will filter out x-ray noise and static elements. Then enhance biological structures.
+# File Paths
+image_folder: "/Volumes/LaCie/Spyder_Vision/Habros_Day3_morning/Spider26_Habro15_gap45_gain20_AAAnorest"
+flat_folder: "/Volumes/LaCie/Spyder_Vision/Flats_and_Darks/Flats_gap45_gain20"
+output_name: "stride5_cropped_Spider26_Habro15_gap45_gain20_AAAnorest"
+
+# Video Settings
+  # start of video
+vid_start_index: 0
+  # number of frames to end at. stop = (start + num)
+num_images: 500
+  # stride of video, we sample a 50fps video every 5 frames
+video_stride: 5
+  # if the video is 3 channel set this to true to convert to grayscale
+convert_to_gray: False
+all_batches: true
+
+  # cropping settings for video (helps a lot with longer videos). Crop can be removed to not crop images
+crop: [
+    # x-axis crop
+    # x-min (set to 0 for whole image), x-max (set to -1 for whole image)
+  [250,-1],
+    # y-min, y-max
+  [100,1600]
+]
+
+# Pipeline Stages
+pipeline:
+  [
+    {
+      # Name of method
+      name: mean_divide_video,
+      # Any positional arguments (for example how many leading frames to divide by)
+      params: [10],
+      # keyword arguments
+      kwargs: {}
+    },
+    {
+      name: temporal_bilateral_filter,
+      kwargs: {},
+      params: []
+    }
+  ]
