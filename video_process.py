@@ -8,20 +8,12 @@ from datetime import datetime
 # list of functions that only function on a single frame at a time
 single_funcs = [
     "cv_denoise",
-    "sobel_2d",
-    "cv_sobel",
     "blur",
     "sharpen",
     "median_filter",
     "detect_edge",
     "threshold_img",
     "modify_contrast",
-    "get_hog",
-    "fourier_masker_low",
-    "fourier_masker_vert",
-    "fourier_masker_hor",
-    "fourier_masker",
-    "fourier_masker_center",
     "block_match"
 ]
 
@@ -93,10 +85,6 @@ def get_and_process_vid(path, start_index, num_images, stride, crop, conf, flat_
 
     if conf["convert_to_gray"]:
         vid = video_util.process_video(vid, video_util.np.min, axis=2)
-
-    multi_thumbnail = False
-    if :
-        multi_thumbnail = True
 
     # if we have multiple trials then run each separatly
     if "trials" in conf:

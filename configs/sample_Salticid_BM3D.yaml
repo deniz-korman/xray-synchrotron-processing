@@ -1,8 +1,8 @@
 # Alternate pipeline that has proven to work better for bringing the footage to a format
 # that lends itself better to ML-based annotation methods (i.e. DeepLabCut)
 # File Paths
-image_folder: "/Volumes/LaCie/Spyder_Vision/Habros_Day3_morning/Spider26_Habro15_gap45_gain20_AAAnorest"
-flat_folder: "/Volumes/LaCie/Spyder_Vision/Flats_and_Darks/Flats_gap45_gain20"
+image_folder: "../your_xray_footage/Spider26_Habro15_gap45_gain20_AAAnorest"
+flat_folder: "../your_xray_footage/Flats_and_Darks/Flats_gap45_gain20"
 output_name: "stride5_cropped_Spider26_Habro15_gap45_gain20_AAAnorest"
 
 # Video Settings
@@ -10,6 +10,7 @@ vid_start_index: 0
 num_images: 500
 video_stride: 5
 convert_to_gray: False
+indiv_thumbnails: False
 all_batches: True
 crop: [
   [250,-1],

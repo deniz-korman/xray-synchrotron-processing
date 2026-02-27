@@ -1,8 +1,8 @@
 # This is the main processing pipeline used to extract internal morphology details
 # It will filter out x-ray noise and static elements. Then enhance biological structures.
 # File Paths
-image_folder: "/Volumes/LaCie/Spyder_Vision/Habros_Day3_morning/Spider26_Habro15_gap45_gain20_AAAnorest"
-flat_folder: "/Volumes/LaCie/Spyder_Vision/Flats_and_Darks/Flats_gap45_gain20"
+image_folder: "../your_xray_footage/Spider26_Habro15_gap45_gain20_AAAnorest"
+flat_folder: "../your_xray_footage/Flats_and_Darks/Flats_gap45_gain20"
 output_name: "stride5_cropped_Spider26_Habro15_gap45_gain20_AAAnorest"
 
 # Video Settings
@@ -14,6 +14,9 @@ num_images: 500
 video_stride: 5
   # if the video is 3 channel set this to true to convert to grayscale
 convert_to_gray: False
+  # Export a .png file with the first frame of every video
+indiv_thumbnails: False 
+
 all_batches: true
 
   # cropping settings for video (helps a lot with longer videos). Crop can be removed to not crop images

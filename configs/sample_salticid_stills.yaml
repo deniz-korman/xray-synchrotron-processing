@@ -1,23 +1,29 @@
 # This is the main processing pipeline to extract stills of static elements.
-# It will filter out the background x-ray noise and produce a still every [num_image] frames
+# It will filter out the background x-ray noise and produce a still .png every [num_image] frames
 # File Paths
-image_folder: "/Volumes/LaCie/Spyder_Vision/Habros_Day3_morning/Spider26_Habro15_gap45_gain20_AAAnorest"
-flat_folder: "/Volumes/LaCie/Spyder_Vision/Flats_and_Darks/Flats_gap45_gain20"
+image_folder: "../your_xray_footage/Spider26_Habro15_gap45_gain20_AAAnorest"
+flat_folder: "../your_xray_footage/Flats_and_Darks/Flats_gap45_gain20"
 output_name: "stride5_cropped_Spider26_Habro15_gap45_gain20_AAAnorest"
 
 # Video Settings
+  # start of video
 vid_start_index: 0
+  # number of frames to end at. stop = (start + num)
 num_images: 500
+  # stride of video, we sample a 50fps video every 5 frames
 video_stride: 5
+  # if the video is 3 channel set this to true to convert to grayscale
 convert_to_gray: False
-indiv_thumbnails: True # Export an mp4 for every num_images as well a still of the first frame of that mp4
+  # Export a .png file with the first frame of every video
+indiv_thumbnails: True 
+ # Export an mp4 for every num_images as well a still of the first frame of that mp4
 all_batches: true
 crop: [
   [250,-1],
   [100,1600]
 ]
 
-# Pipeline Stages
+# Pipeline Stages -- When empty, it will take input frames, remove x-ray noise based on flat_folder, and export .mp4 files
 pipeline:
   [
   ]

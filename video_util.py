@@ -7,8 +7,6 @@ from skimage import color, data, filters, restoration
 from skimage.segmentation import slic, mark_boundaries, felzenszwalb
 from skimage.restoration import denoise_wavelet
 from skimage.color import label2rgb
-from skimage.feature import hog
-from scipy.fftpack import fft2, ifft2
 from moviepy.editor import ImageSequenceClip
 import os
 import cv2 as cv2
@@ -221,30 +219,11 @@ def cv_denoise(img, strength=2):
     cv_denoise = cv2.fastNlMeansDenoising(cv_img,None,10, 7, 2)
     return cv_denoise
 
-# run a sobel filter over the image
-def sobel_2d(img):
-    sx = ndimage.sobel(img, axis=0, mode='constant')
-    sy = ndimage.sobel(img, axis=1, mode='constant')
-    sob = np.hypot(sx, sy)
-    return sob
-
-# another version of the sobel filter using cv2, can help if one is not working
-def cv_sobel(img, axis=0):
-    sobel_x = np.array([[ -1, 0, 1],
-                        [ -2, 0, 2],
-                        [ -1, 2, 1]])
-    sobel_y = np.array([[ -1, -2, -1],
-                        [ 0, 0, 0],
-                        [ 1, 2, 1]])
-    sobels = [sobel_x, sobel_y]
-    output_img = cv2.filter2D(img, -1, sobels[axis])
-    return output_img
-
 # simple gausian blur
 def blur(img, size=3):
     return ndimage.gaussian_filter(img, size)
 
-# simplge sharpening method
+# simple sharpening method
 def sharpen(img, size=3):
     blurred_f = ndimage.gaussian_filter(img, size)
     
@@ -282,117 +261,6 @@ def modify_contrast(img, factor=1.5, img_mul=100):
 
     im_output = enhancer.enhance(factor)
     return im_output
-
-# get a Histogram of Oriented Gradients: https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_hog.html
-def get_hog(img, orientations=9, pixels_per_cell=(8,8), cells_per_block=(2,2)):
-    fd, hog_image = hog(img, orientations=orientations, pixels_per_cell=pixels_per_cell, 
-                        cells_per_block=cells_per_block, visualize=True)
-    return hog_image
-
-
-# this masks out low frequency details using FFT
-def fourier_masker_low(image, i, show=False):
-    # set size of region to mask
-    threshold = 25
-    gap = 375
-    # font size for showing visual
-    f_size = 15
-    
-    # get the fft
-    dark_image_grey_fourier = np.fft.fftshift(np.fft.fft2(image))
-    center = dark_image_grey_fourier.shape[1] // 2
-    # mask the fft
-    dark_image_grey_fourier[:gap, 0:center-threshold] = i
-    dark_image_grey_fourier[:gap, center+threshold:] = i
-
-    
-    dark_image_grey_fourier[-gap:, 0:center-threshold] = i
-    dark_image_grey_fourier[-gap:, center+threshold:] = i
-    # convert back to image
-    output_img = abs(np.fft.ifft2(dark_image_grey_fourier))
-    # if need be show some debug images to see behaviour
-    if (show):
-        fig, ax = plt.subplots(1,3,figsize=(15,15))
-        ax[0].imshow(np.log(abs(dark_image_grey_fourier)), cmap='gray')
-        ax[0].set_title('Masked Fourier', fontsize = f_size)
-        ax[1].imshow(image, cmap = 'gray')
-        ax[1].set_title('Greyscale Image', fontsize = f_size);
-        ax[2].imshow(output_img, 
-                        cmap='gray')
-        ax[2].set_title('Transformed Greyscale Image', 
-                        fontsize = f_size);
-    return output_img
-
-# this masks vertical frequencies
-def fourier_masker_vert(image, i, show=False,threshold=25,gap=375,f_size=15):
-    dark_image_grey_fourier = np.fft.fftshift(np.fft.fft2(image))
-    center = dark_image_grey_fourier.shape[1] // 2
-
-    dark_image_grey_fourier[:gap, center-threshold:center+threshold] = i
-    dark_image_grey_fourier[-gap:,center-threshold:center+threshold] = i
-    output_img = abs(np.fft.ifft2(dark_image_grey_fourier))
-    if (show):
-        fig, ax = plt.subplots(1,3,figsize=(15,15))
-        ax[0].imshow(np.log(abs(dark_image_grey_fourier)), cmap='gray')
-        ax[0].set_title('Masked Fourier', fontsize = f_size)
-        ax[1].imshow(image, cmap = 'gray')
-        ax[1].set_title('Greyscale Image', fontsize = f_size);
-        ax[2].imshow(output_img, 
-                          cmap='gray')
-        ax[2].set_title('Transformed Greyscale Image', 
-                          fontsize = f_size);
-    return output_img
-# same as above but horizonal
-def fourier_masker_hor(image, i, show=False):
-    threshold = 25
-    gap = 450
-    f_size = 15
-    dark_image_grey_fourier = np.fft.fftshift(np.fft.fft2(image))
-    center = dark_image_grey_fourier.shape[0] // 2
-    dark_image_grey_fourier[center-threshold:center+threshold, :gap] = i
-    dark_image_grey_fourier[center-threshold:center+threshold,-gap:] = i
-    output_img = abs(np.fft.ifft2(dark_image_grey_fourier))
-    if (show):
-        fig, ax = plt.subplots(1,3,figsize=(15,15))
-        ax[0].imshow(np.log(abs(dark_image_grey_fourier)), cmap='gray')
-        ax[0].set_title('Masked Fourier', fontsize = f_size)
-        ax[1].imshow(image, cmap = 'gray')
-        ax[1].set_title('Greyscale Image', fontsize = f_size);
-        ax[2].imshow(output_img, 
-                        cmap='gray')
-        ax[2].set_title('Transformed Greyscale Image', 
-                        fontsize = f_size);
-    return output_img
-
-# masking method for both vertical and horizontal
-def fourier_masker(image, i=1):
-    vert = fourier_masker_vert(image, i)
-    final = fourier_masker_hor(vert, i)
-    return final
-
-# masking method for just the center of the fft, masking out higher frequency patterns.
-def fourier_masker_center(image, size=5, i=1, show=False):
-    threshold = 25
-    patch_size = size
-    f_size = 15
-    dark_image_grey_fourier = np.fft.fftshift(np.fft.fft2(image))
-    center_y = dark_image_grey_fourier.shape[1] // 2
-    center_x = dark_image_grey_fourier.shape[0] // 2
-
-    dark_image_grey_fourier[center_x-patch_size:center_x+patch_size, center_y-patch_size:center_y+patch_size] = i
-
-    output_img = abs(np.fft.ifft2(dark_image_grey_fourier))
-    if (show):
-        fig, ax = plt.subplots(1,3,figsize=(15,15))
-        ax[0].imshow(np.log(abs(dark_image_grey_fourier)), cmap='gray')
-        ax[0].set_title('Masked Fourier', fontsize = f_size)
-        ax[1].imshow(image, cmap = 'gray')
-        ax[1].set_title('Greyscale Image', fontsize = f_size)
-        ax[2].imshow(output_img, 
-                        cmap='gray')
-        ax[2].set_title('Transformed Greyscale Image', 
-                        fontsize = f_size)
-    return output_img
 
 # simple laplacian filter
 def laplacian(vid, type=cv2.CV_64F):
@@ -436,7 +304,6 @@ def mix_videos(vid_a, vid_b, mix_coef):
     vid_b = vid_b * vid_scale
     final = vid_a * mix_coef + vid_b * (1 - mix_coef)
     return final
-
 
 # Full pipeline methods:
 def temporal_bilateral_filter(vid):
