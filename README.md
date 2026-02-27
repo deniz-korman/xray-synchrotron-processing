@@ -45,6 +45,9 @@ video_stride: 5
 ## useful if your videos are RGB but need to be grayscale
 convert_to_gray: False
 
+# Export a .png file with the first frame of every video
+indiv_thumbnails: False 
+
 ## this crops the input videos to reduce memory usage and make it easier to view
 crop: [
   [500,-1],
@@ -125,79 +128,49 @@ If a value is defined in both the config file and command line arguments it defa
    - Applies OpenCV's fastNlMeansDenoising to an image.
    - Reduces noise in images.
 
-2. **sobel_2d(img)**:
-   - Computes the Sobel gradient of an image.
-   - Useful for edge detection.
-
-3. **cv_sobel(img, axis=0)**:
-   - Applies a Sobel filter using OpenCV along a specified axis.
-   - For detecting horizontal or vertical edges.
-
-4. **blur(img, size=3)**:
+2. **blur(img, size=3)**:
    - Applies Gaussian blur to an image.
    - Useful for smoothing images.
 
-5. **sharpen(img, size=3)**:
+3. **sharpen(img, size=3)**:
    - Sharpens an image using a Gaussian filter.
    - Enhances details in images.
 
-6. **median_filter(img, size=3)**:
+4. **median_filter(img, size=3)**:
    - Applies a median filter.
    - Effective for removing salt-and-pepper noise.
 
-7. **detect_edge(img, image_mul=1)**:
+5. **detect_edge(img, image_mul=1)**:
    - Detects edges in an image using PIL's FIND_EDGES filter.
    - Useful for highlighting edges.
    - image_mul scaled the entire image, useful if the images values are too low for the filter to detect.
 
-8. **threshold_img(img, threshold=[0.1,0.8])**:
+6. **threshold_img(img, threshold=[0.1,0.8])**:
    - Applies a binary threshold to an image.
    - Useful for isolating elements based on intensity.
 
-9. **modify_contrast(img, factor=1.5, img_mul=100)**:
+7. **modify_contrast(img, factor=1.5, img_mul=100)**:
    - Adjusts the contrast of an image.
    - Enhances the visual appearance or highlights features.
 
-10. **get_hog(img, orientations=9, pixels_per_cell=(8,8), cells_per_block=(2,2))**:
-    - Computes Histogram of Oriented Gradients (HOG) for an image.
-    - Useful for feature extraction in image analysis.
-    - for more information: https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_hog.html
-
-11. **fourier_masker_low(image, i, show=False)**:
-    - Applies a low-pass Fourier filter to an image.
-    - Useful for removing high-frequency noise.
-
-12. **fourier_masker_vert(image, i, show=False)**:
-    - Applies a vertical Fourier mask.
-    - Useful for isolating or removing vertical frequencies.
-
-13. **fourier_masker_hor(image, i, show=False)**:
-    - Applies a horizontal Fourier mask.
-    - Useful for isolating or removing horizontal frequencies.
-
-14. **fourier_masker_center(image, size=5, i=1, show=False)**:
-    - Applies a center mask in the Fourier domain.
-    - Can be used to remove or isolate central frequencies.
-    - `i` is to provide a value to mask with
-
-15. **laplacian(vid)**:
+8. **laplacian(vid)**:
     - Applies a Laplacian filter to a video.
     - Enhances edges in video frames.
 
-16. **mean_divide_video(vid, n_frames)**:
+10. **mean_divide_video(vid, n_frames)**:
     - Divides each frame of the video by the mean of a number of surrounding frames.
     - Useful for normalizing brightness variations.
 
-17. **mean_divide_video_bidir(vid, n_frames_f, n_frames_b)**:
+11. **mean_divide_video_bidir(vid, n_frames_f, n_frames_b)**:
     - Applies bidirectional mean division on video frames.
     - Helps in correcting illumination differences.
     - Very similar to mean divide method but gathers the mean from before and after the given frame
 
-18. **mix_videos(vid_a, vid_b, mix_coef)**:
+12. **mix_videos(vid_a, vid_b, mix_coef)**:
     - Mixes two videos based on a mixing coefficient.
     - Useful for combining features or effects from two different videos.
 
-19. **temporal_bilateral_filter(vid)**:
+13. **temporal_bilateral_filter(vid)**:
     - Applies a bilateral filter temporally across video frames.
     - Effective in noise reduction while preserving edges.
 
