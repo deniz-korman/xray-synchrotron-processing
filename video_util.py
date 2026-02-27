@@ -7,7 +7,6 @@ from skimage import color, data, filters, restoration
 from skimage.segmentation import slic, mark_boundaries, felzenszwalb
 from skimage.restoration import denoise_wavelet
 from skimage.color import label2rgb
-from moviepy.editor import ImageSequenceClip
 import os
 import cv2 as cv2
 from scipy import ndimage
